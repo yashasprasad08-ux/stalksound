@@ -9,13 +9,14 @@ function sse(data: unknown) {
   return `data: ${JSON.stringify(data)}\n\n`
 }
 
+// SSE flow for the wow factor (GET)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const url = searchParams.get('url') || ''
   const genre = (searchParams.get('genre') || 'trap').toLowerCase()
 
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anon'
-  const { allowed, remaining } = checkLimit(ip)
+  const { allowed } = checkLimit(ip)
   if (!allowed) {
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -41,10 +42,8 @@ export async function GET(req: NextRequest) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        // Simulated progress stages for wow factor
-        let elapsed = 0
-        for (let i = 0; i < PROGRESS_STAGES.length; i++) {
-          const stage = PROGRESS_STAGES[i]
+        let i = 0
+        for (const stage of PROGRESS_STAGES) {
           const steps = Math.max(4, Math.floor(stage.duration / 400))
           for (let s = 0; s < steps; s++) {
             const progressBase = i * (100 / PROGRESS_STAGES.length)
@@ -55,8 +54,8 @@ export async function GET(req: NextRequest) {
               )
             )
             await new Promise((r) => setTimeout(r, Math.floor(stage.duration / steps)))
-            elapsed += Math.floor(stage.duration / steps)
           }
+          i++
         }
 
         // Extraction step (placeholder)
@@ -89,4 +88,32 @@ export async function GET(req: NextRequest) {
       Connection: 'keep-alive',
     },
   })
+}
+
+// JSON flow for programmatic use (POST)
+export async function POST(req: NextRequest) {
+  try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anon'
+    const { allowed } = checkLimit(ip)
+    if (!allowed) {
+      return Response.json({ success: false, error: ERROR_MESSAGES.rate_limit }, { status: 429 })
+    }
+
+    const { audioUrl, genre = 'trap' } = await req.json()
+    if (!audioUrl || typeof audioUrl !== 'string') {
+      return Response.json({ success: false, error: ERROR_MESSAGES.invalid_url }, { status: 400 })
+    }
+
+    // Call Loudly via wrapper (real if key present, demo fallback otherwise)
+    const res = await generateWithLoudly({ duration: 120, genre: [String(genre)], mood: 'energetic', seedAudioUrl: audioUrl })
+
+    increment(ip)
+    return Response.json({ success: true, trackUrl: res.audioUrl, audioUrl: res.audioUrl, duration: res.duration, genre })
+  } catch (error) {
+    console.error('Generation error:', error)
+    return Response.json(
+      { success: false, error: 'Music generation failed. Try a different audio clip.' },
+      { status: 500 }
+    )
+  }
 }

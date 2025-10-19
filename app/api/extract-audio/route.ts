@@ -9,7 +9,8 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: ERROR_MESSAGES.invalid_url }, { status: 400 })
     }
     const { seedAudioUrl } = await extractAudioFromUrl(url)
-    return Response.json({ seedAudioUrl })
+    // Return both for compatibility with different clients
+    return Response.json({ seedAudioUrl, audioUrl: seedAudioUrl })
   } catch (e) {
     return Response.json({ error: ERROR_MESSAGES.api_error }, { status: 500 })
   }

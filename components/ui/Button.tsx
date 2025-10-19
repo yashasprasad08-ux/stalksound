@@ -1,8 +1,8 @@
 'use client'
-import { motion } from 'framer-motion'
-import type { ButtonHTMLAttributes, PropsWithChildren } from 'react'
+import { motion, type HTMLMotionProps } from 'framer-motion'
+import type { PropsWithChildren } from 'react'
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+type Props = HTMLMotionProps<'button'> & {
   variant?: 'primary' | 'secondary' | 'ghost'
   loading?: boolean
 }

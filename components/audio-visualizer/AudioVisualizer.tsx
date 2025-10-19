@@ -62,7 +62,8 @@ export default function AudioVisualizer({
     let x = 0
 
     for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] / 255
+      const value = dataArray[i] ?? 0
+      const v = value / 255
       const barHeight = v * height
       const hue = 150 + v * 100 // emerald to violet spectrum
       c.fillStyle = `hsla(${hue}, 80%, ${40 + v * 35}%, 0.9)`
