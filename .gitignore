@@ -1,0 +1,45 @@
+# Dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# Production
+/build
+/.vercel
+
+# Env files
+.env
+.env.*.local
+.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Typescript
+*.tsbuildinfo
+
+# Editor
+.vscode/
+.DS_Store
+
+# Generated assets
+/generated_audio/
+/generated_video/
+/cache/
+
+# Coverage
+/coverage
+
+# Temporary files
+*.tmp
+*.swp
+
+# Lock files (optional, allow one if needed)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
